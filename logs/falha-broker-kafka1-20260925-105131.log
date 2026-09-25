@@ -1,0 +1,56 @@
+(saída gravada em logs/falha-broker-kafka1-20260925-105131.log)
+
+[1;36m==== [10:51:31] ANTES: estado do tópico (todos os brokers no ar) ====[0m
+Topic: dados-sensores  TopicId: 1jxbqI8MSpiSi9fpVO5m9g  PartitionCount: 6  ReplicationFactor: 3  Configs: min.insync.replicas=2
+  Topic: dados-sensores  Partition: 0  Leader: 3  Replicas: 3,1,2  Isr: 3,2,1  Elr:   LastKnownElr: 
+  Topic: dados-sensores  Partition: 1  Leader: 1  Replicas: 1,2,3  Isr: 3,2,1  Elr:   LastKnownElr: 
+  Topic: dados-sensores  Partition: 2  Leader: 2  Replicas: 2,3,1  Isr: 3,2,1  Elr:   LastKnownElr: 
+  Topic: dados-sensores  Partition: 3  Leader: 1  Replicas: 1,2,3  Isr: 3,2,1  Elr:   LastKnownElr: 
+  Topic: dados-sensores  Partition: 4  Leader: 2  Replicas: 2,3,1  Isr: 3,2,1  Elr:   LastKnownElr: 
+  Topic: dados-sensores  Partition: 5  Leader: 3  Replicas: 3,1,2  Isr: 3,2,1  Elr:   LastKnownElr: 
+leituras gravadas nos últimos 10s: 240
+
+[1;36m==== [10:51:32] DERRUBANDO o broker kafka1 (docker kill = queda abrupta) ====[0m
+kafka1 parado.
+
+[1;36m==== [10:51:32] Aguardando 20s para eleição de novos líderes... ====[0m
+
+[1;36m==== [10:51:52] DURANTE a falha: líderes e ISR ====[0m
+Topic: dados-sensores  TopicId: 1jxbqI8MSpiSi9fpVO5m9g  PartitionCount: 6  ReplicationFactor: 3  Configs: min.insync.replicas=2
+  Topic: dados-sensores  Partition: 0  Leader: 3  Replicas: 3,1,2  Isr: 3,2  Elr:   LastKnownElr: 
+  Topic: dados-sensores  Partition: 1  Leader: 2  Replicas: 1,2,3  Isr: 3,2  Elr:   LastKnownElr: 
+  Topic: dados-sensores  Partition: 2  Leader: 2  Replicas: 2,3,1  Isr: 3,2  Elr:   LastKnownElr: 
+  Topic: dados-sensores  Partition: 3  Leader: 2  Replicas: 1,2,3  Isr: 3,2  Elr:   LastKnownElr: 
+  Topic: dados-sensores  Partition: 4  Leader: 2  Replicas: 2,3,1  Isr: 3,2  Elr:   LastKnownElr: 
+  Topic: dados-sensores  Partition: 5  Leader: 3  Replicas: 3,1,2  Isr: 3,2  Elr:   LastKnownElr: 
+
+leituras gravadas nos últimos 10s (sistema segue funcionando): 240
+
+[1;36m==== [10:52:13] DURANTE a falha: consumer group ====[0m
+GROUP                    TOPIC           PARTITION  CURRENT-OFFSET  LOG-END-OFFSET  LAG    CONSUMER-ID
+processadores-sensores   dados-sensores  3          26766           26766           0      proc-711d8e46-4bcac317-6dc4-4dbe-8978-cce19686c6ed
+processadores-sensores   dados-sensores  2          42981           42981           0      proc-711d8e46-4bcac317-6dc4-4dbe-8978-cce19686c6ed
+processadores-sensores   dados-sensores  5          17341           17341           0      proc-7b14f567-93683d6b-c1dc-4d19-bdec-4456a1b44692
+processadores-sensores   dados-sensores  4          42518           42518           0      proc-7b14f567-93683d6b-c1dc-4d19-bdec-4456a1b44692
+processadores-sensores   dados-sensores  1          58461           58461           0      proc-573d9f78-25780574-dfa8-408d-8d8d-107a18c25b8d
+processadores-sensores   dados-sensores  0          17221           17221           0      proc-573d9f78-25780574-dfa8-408d-8d8d-107a18c25b8d
+
+[1;36m==== [10:52:14] Últimas linhas dos sensores (sem erros de entrega esperados) ====[0m
+2026-09-25 10:51:54,671 [sensor-83ebd94d] INFO enviadas=64400 falhas=0 pendentes=8 por_partição={0: 8050, 1: 16100, 2: 16100, 3: 8050, 4: 8050, 5: 8050}
+2026-09-25 10:52:04,679 [sensor-83ebd94d] INFO enviadas=64480 falhas=0 pendentes=8 por_partição={0: 8060, 1: 16120, 2: 16120, 3: 8060, 4: 8060, 5: 8060}
+2026-09-25 10:52:14,687 [sensor-83ebd94d] INFO enviadas=64560 falhas=0 pendentes=8 por_partição={0: 8070, 1: 16140, 2: 16140, 3: 8070, 4: 8070, 5: 8070}
+2026-09-25 10:51:54,671 [sensor-d1259a62] INFO enviadas=64400 falhas=0 pendentes=8 por_partição={0: 8050, 1: 32200, 2: 8050, 4: 16100}
+2026-09-25 10:52:04,679 [sensor-d1259a62] INFO enviadas=64480 falhas=0 pendentes=8 por_partição={0: 8060, 1: 32240, 2: 8060, 4: 16120}
+2026-09-25 10:52:14,687 [sensor-d1259a62] INFO enviadas=64560 falhas=0 pendentes=8 por_partição={0: 8070, 1: 32280, 2: 8070, 4: 16140}
+
+[1;36m==== [10:52:14] RELIGANDO o broker kafka1 ====[0m
+
+[1;36m==== [10:52:34] DEPOIS: broker de volta (volta ao ISR; lideranças podem ser rebalanceadas) ====[0m
+Topic: dados-sensores  TopicId: 1jxbqI8MSpiSi9fpVO5m9g  PartitionCount: 6  ReplicationFactor: 3  Configs: min.insync.replicas=2
+  Topic: dados-sensores  Partition: 0  Leader: 3  Replicas: 3,1,2  Isr: 3,2,1  Elr:   LastKnownElr: 
+  Topic: dados-sensores  Partition: 1  Leader: 2  Replicas: 1,2,3  Isr: 3,2,1  Elr:   LastKnownElr: 
+  Topic: dados-sensores  Partition: 2  Leader: 2  Replicas: 2,3,1  Isr: 3,2,1  Elr:   LastKnownElr: 
+  Topic: dados-sensores  Partition: 3  Leader: 2  Replicas: 1,2,3  Isr: 3,2,1  Elr:   LastKnownElr: 
+  Topic: dados-sensores  Partition: 4  Leader: 2  Replicas: 2,3,1  Isr: 3,2,1  Elr:   LastKnownElr: 
+  Topic: dados-sensores  Partition: 5  Leader: 3  Replicas: 3,1,2  Isr: 3,2,1  Elr:   LastKnownElr: 
+leituras gravadas nos últimos 10s: 240

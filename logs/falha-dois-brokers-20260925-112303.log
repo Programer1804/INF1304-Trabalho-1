@@ -1,0 +1,40 @@
+(saída gravada em logs/falha-dois-brokers-20260925-112303.log)
+
+[1;36m==== [11:23:03] ANTES ====[0m
+leituras gravadas nos últimos 10s: 240
+
+[1;36m==== [11:23:03] DERRUBANDO kafka1 e kafka2 ====[0m
+[11:23:23] leituras gravadas nos últimos 10s: 0
+[11:23:43] leituras gravadas nos últimos 10s: 0
+[11:24:03] leituras gravadas nos últimos 10s: 0
+
+[1;36m==== [11:24:04] Sensores durante a falha (pendentes = mensagens retidas no buffer) ====[0m
+2026-09-25 11:23:58,345 [sensor-2bf40fef] INFO enviadas=67728 falhas=0 pendentes=440 por_partição={1: 8466, 2: 16932, 3: 16932, 4: 16932, 5: 8466}
+2026-09-25 11:23:48,336 [sensor-d1259a62] INFO enviadas=67728 falhas=0 pendentes=360 por_partição={0: 8466, 1: 33864, 2: 8466, 4: 16932}
+2026-09-25 11:23:58,345 [sensor-d1259a62] INFO enviadas=67728 falhas=0 pendentes=440 por_partição={0: 8466, 1: 33864, 2: 8466, 4: 16932}
+
+[1;36m==== [11:24:04] RELIGANDO kafka1 e kafka2 ====[0m
+[11:24:24] leituras gravadas nos últimos 10s: 0
+[11:24:44] leituras gravadas nos últimos 10s: 240
+[11:25:04] leituras gravadas nos últimos 10s: 240
+
+[1;36m==== [11:25:05] DEPOIS: tópico e grupo ====[0m
+Topic: dados-sensores  TopicId: 1jxbqI8MSpiSi9fpVO5m9g  PartitionCount: 6  ReplicationFactor: 3  Configs: min.insync.replicas=2
+  Topic: dados-sensores  Partition: 0  Leader: 3  Replicas: 3,1,2  Isr: 3,1,2  Elr:   LastKnownElr: 
+  Topic: dados-sensores  Partition: 1  Leader: 3  Replicas: 1,2,3  Isr: 3,2,1  Elr:   LastKnownElr: 
+  Topic: dados-sensores  Partition: 2  Leader: 3  Replicas: 2,3,1  Isr: 3,1,2  Elr:   LastKnownElr: 
+  Topic: dados-sensores  Partition: 3  Leader: 3  Replicas: 1,2,3  Isr: 3,1,2  Elr:   LastKnownElr: 
+  Topic: dados-sensores  Partition: 4  Leader: 3  Replicas: 2,3,1  Isr: 3,2,1  Elr:   LastKnownElr: 
+  Topic: dados-sensores  Partition: 5  Leader: 3  Replicas: 3,1,2  Isr: 3,1,2  Elr:   LastKnownElr: 
+GROUP                    TOPIC           PARTITION  CURRENT-OFFSET  LOG-END-OFFSET  LAG    CONSUMER-ID
+processadores-sensores   dados-sensores  3          29252           29255           3      proc-34c1a467-77bd3af6-f634-4521-a9c4-cd47be4becf8
+processadores-sensores   dados-sensores  2          47435           47440           5      proc-34c1a467-77bd3af6-f634-4521-a9c4-cd47be4becf8
+processadores-sensores   dados-sensores  1          63725           63725           0      proc-117780b9-a426bc3f-c4cd-4ff3-bc90-bded51e5e285
+processadores-sensores   dados-sensores  0          18492           18492           0      proc-117780b9-a426bc3f-c4cd-4ff3-bc90-bded51e5e285
+processadores-sensores   dados-sensores  5          18612           18612           0      proc-e6c30a18-f4a849b3-db84-4a3b-b695-19e9074b8b66
+processadores-sensores   dados-sensores  4          45812           45812           0      proc-e6c30a18-f4a849b3-db84-4a3b-b695-19e9074b8b66
+
+[1;36m==== [11:25:07] Sensores após a recuperação ====[0m
+2026-09-25 11:24:58,274 [sensor-83ebd94d] INFO enviadas=68640 falhas=0 pendentes=8 por_partição={0: 8580, 1: 17160, 2: 17160, 3: 8580, 4: 8580, 5: 8580}
+2026-09-25 11:24:48,381 [sensor-2bf40fef] INFO enviadas=68560 falhas=0 pendentes=8 por_partição={1: 8570, 2: 17140, 3: 17140, 4: 17140, 5: 8570}
+2026-09-25 11:24:58,274 [sensor-2bf40fef] INFO enviadas=68640 falhas=0 pendentes=8 por_partição={1: 8580, 2: 17160, 3: 17160, 4: 17160, 5: 8580}

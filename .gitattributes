@@ -1,2 +1,13 @@
 # Auto detect text files and perform LF normalization
 * text=auto
+
+# Arquivos lidos dentro dos containers Linux precisam de LF no disco:
+# com CRLF o "\r" quebra o shebang e comandos como "set -euo pipefail".
+*.sh        text eol=lf
+*.py        text eol=lf
+*.sql       text eol=lf
+*.yml       text eol=lf
+*.yaml      text eol=lf
+Makefile    text eol=lf
+Dockerfile  text eol=lf
+.env        text eol=lf

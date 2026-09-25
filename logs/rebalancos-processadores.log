@@ -1,0 +1,5 @@
+processador-1  | 2026-09-24 21:42:34,213 [proc-b6e604b7] INFO >>> REBALANÇO: RECEBIDAS partições [4, 5] | agora responsável por [4, 5]
+processador-2  | 2026-09-24 21:42:34,213 [proc-93b1f62d] INFO >>> REBALANÇO: RECEBIDAS partições [2, 3] | agora responsável por [2, 3]
+processador-3  | 2026-09-24 21:42:31,173 [proc-2e5678e7] INFO >>> REBALANÇO: RECEBIDAS partições [0, 1, 2, 3, 4, 5] | agora responsável por [0, 1, 2, 3, 4, 5]
+processador-3  | 2026-09-24 21:42:34,209 [proc-2e5678e7] INFO <<< REBALANÇO: REVOGADAS partições [0, 1, 2, 3, 4, 5] | restam []
+processador-3  | 2026-09-24 21:42:34,213 [proc-2e5678e7] INFO >>> REBALANÇO: RECEBIDAS partições [0, 1] | agora responsável por [0, 1]

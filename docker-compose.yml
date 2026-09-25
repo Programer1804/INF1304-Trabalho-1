@@ -1,0 +1,192 @@
+# =====================================================================
+# Fábrica Inteligente: monitoramento de sensores com Kafka
+#
+# Serviços:
+#   kafka1..3    -> cluster Kafka em modo KRaft (broker + controller), sem Zookeeper
+#   kafka-init   -> cria os tópicos (partições + replicação) e sai
+#   postgres     -> banco onde os processadores gravam leituras e alertas
+#   sensor       -> produtores (escaláveis: --scale sensor=N)
+#   processador  -> consumidores do mesmo grupo (escaláveis: --scale processador=N)
+#   kafka-ui     -> painel web em http://localhost:${KAFKA_UI_PORT}
+#
+# Todos os parâmetros vêm do arquivo .env (sem constantes hard-coded).
+# =====================================================================
+
+name: fabrica
+
+# Configuração comum aos 3 brokers (âncora YAML reaproveitada abaixo)
+x-kafka-common: &kafka-common
+  image: ${KAFKA_IMAGE}
+  restart: "no"          # não reinicia sozinho: queremos derrubar brokers nos testes de falha
+  networks: [fabrica]
+  healthcheck:
+    test: ["CMD-SHELL", "/opt/kafka/bin/kafka-broker-api-versions.sh --bootstrap-server localhost:9092 > /dev/null 2>&1"]
+    interval: 10s
+    timeout: 10s
+    retries: 12
+    start_period: 20s
+
+x-kafka-env: &kafka-env
+  CLUSTER_ID: ${KAFKA_CLUSTER_ID}
+  KAFKA_PROCESS_ROLES: broker,controller
+  KAFKA_LISTENERS: PLAINTEXT://:9092,CONTROLLER://:9093
+  KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+  KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT
+  KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+  # Quórum de 3 controllers: tolera a queda de 1 (maioria = 2)
+  KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka1:9093,2@kafka2:9093,3@kafka3:9093
+  KAFKA_AUTO_CREATE_TOPICS_ENABLE: "false"
+  KAFKA_DEFAULT_REPLICATION_FACTOR: ${TOPIC_REPLICATION_FACTOR}
+  KAFKA_MIN_INSYNC_REPLICAS: ${TOPIC_MIN_INSYNC_REPLICAS}
+  # Tópicos internos (__consumer_offsets etc.) também replicados -> grupo sobrevive à queda de broker
+  KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: ${TOPIC_REPLICATION_FACTOR}
+  KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: ${TOPIC_REPLICATION_FACTOR}
+  KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: ${TOPIC_MIN_INSYNC_REPLICAS}
+  KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+  KAFKA_LOG_DIRS: /var/lib/kafka/data
+
+services:
+  kafka1:
+    <<: *kafka-common
+    container_name: kafka1
+    hostname: kafka1
+    environment:
+      <<: *kafka-env
+      KAFKA_NODE_ID: 1
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka1:9092
+    volumes: [kafka1-data:/var/lib/kafka/data]
+
+  kafka2:
+    <<: *kafka-common
+    container_name: kafka2
+    hostname: kafka2
+    environment:
+      <<: *kafka-env
+      KAFKA_NODE_ID: 2
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka2:9092
+    volumes: [kafka2-data:/var/lib/kafka/data]
+
+  kafka3:
+    <<: *kafka-common
+    container_name: kafka3
+    hostname: kafka3
+    environment:
+      <<: *kafka-env
+      KAFKA_NODE_ID: 3
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka3:9092
+    volumes: [kafka3-data:/var/lib/kafka/data]
+
+  # Cria os tópicos uma única vez (idempotente com --if-not-exists) e termina.
+  kafka-init:
+    image: ${KAFKA_IMAGE}
+    container_name: kafka-init
+    networks: [fabrica]
+    depends_on:
+      kafka1: { condition: service_healthy }
+      kafka2: { condition: service_healthy }
+      kafka3: { condition: service_healthy }
+    environment:
+      BOOTSTRAP: ${KAFKA_BOOTSTRAP_SERVERS}
+      TOPIC_NAME: ${TOPIC_NAME}
+      ALERT_TOPIC_NAME: ${ALERT_TOPIC_NAME}
+      PARTITIONS: ${TOPIC_PARTITIONS}
+      RF: ${TOPIC_REPLICATION_FACTOR}
+      MIN_ISR: ${TOPIC_MIN_INSYNC_REPLICAS}
+    volumes: [./scripts/criar-topicos.sh:/criar-topicos.sh:ro]
+    entrypoint: ["/bin/bash", "/criar-topicos.sh"]
+    restart: "no"
+
+  postgres:
+    image: ${POSTGRES_IMAGE}
+    container_name: postgres
+    networks: [fabrica]
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      TZ: ${TZ}
+      PGTZ: ${TZ}
+    volumes:
+      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+      - pg-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  sensor:
+    build: ./sensor
+    image: fabrica/sensor:latest
+    networks: [fabrica]
+    deploy:
+      replicas: ${SENSOR_REPLICAS}
+    depends_on:
+      kafka-init: { condition: service_completed_successfully }
+    environment:
+      KAFKA_BOOTSTRAP_SERVERS: ${KAFKA_BOOTSTRAP_SERVERS}
+      TOPIC_NAME: ${TOPIC_NAME}
+      SENSOR_INTERVAL_SECONDS: ${SENSOR_INTERVAL_SECONDS}
+      SENSOR_ANOMALY_PROBABILITY: ${SENSOR_ANOMALY_PROBABILITY}
+      SENSOR_SECTORS: ${SENSOR_SECTORS}
+      MACHINES_PER_SENSOR: ${MACHINES_PER_SENSOR}
+      SENSOR_STATS_EVERY_SECONDS: ${SENSOR_STATS_EVERY_SECONDS}
+      PRODUCER_LINGER_MS: ${PRODUCER_LINGER_MS}
+      PRODUCER_DELIVERY_TIMEOUT_MS: ${PRODUCER_DELIVERY_TIMEOUT_MS}
+      LOG_LEVEL: ${LOG_LEVEL}
+      TZ: ${TZ}
+    restart: unless-stopped
+
+  processador:
+    build: ./processador
+    image: fabrica/processador:latest
+    networks: [fabrica]
+    deploy:
+      replicas: ${CONSUMER_REPLICAS}
+    depends_on:
+      kafka-init: { condition: service_completed_successfully }
+      postgres: { condition: service_healthy }
+    environment:
+      KAFKA_BOOTSTRAP_SERVERS: ${KAFKA_BOOTSTRAP_SERVERS}
+      TOPIC_NAME: ${TOPIC_NAME}
+      ALERT_TOPIC_NAME: ${ALERT_TOPIC_NAME}
+      CONSUMER_GROUP_ID: ${CONSUMER_GROUP_ID}
+      PARTITION_ASSIGNMENT_STRATEGY: ${PARTITION_ASSIGNMENT_STRATEGY}
+      SESSION_TIMEOUT_MS: ${SESSION_TIMEOUT_MS}
+      HEARTBEAT_INTERVAL_MS: ${HEARTBEAT_INTERVAL_MS}
+      PROCESSING_DELAY_MS: ${PROCESSING_DELAY_MS}
+      CONSUMER_BATCH_SIZE: ${CONSUMER_BATCH_SIZE}
+      CONSUMER_STATS_EVERY_SECONDS: ${CONSUMER_STATS_EVERY_SECONDS}
+      CONSUMER_AUTO_OFFSET_RESET: ${CONSUMER_AUTO_OFFSET_RESET}
+      LIMIT_TEMPERATURE_C: ${LIMIT_TEMPERATURE_C}
+      LIMIT_VIBRATION_MM_S: ${LIMIT_VIBRATION_MM_S}
+      LIMIT_POWER_KW: ${LIMIT_POWER_KW}
+      POSTGRES_HOST: ${POSTGRES_HOST}
+      POSTGRES_PORT: ${POSTGRES_PORT}
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      LOG_LEVEL: ${LOG_LEVEL}
+      TZ: ${TZ}
+    # "no": para o teste de falha o consumidor morto precisa continuar morto
+    restart: "no"
+
+  kafka-ui:
+    image: ${KAFKA_UI_IMAGE}
+    container_name: kafka-ui
+    networks: [fabrica]
+    ports: ["${KAFKA_UI_PORT}:8080"]
+    depends_on:
+      kafka-init: { condition: service_completed_successfully }
+    environment:
+      KAFKA_CLUSTERS_0_NAME: fabrica
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: ${KAFKA_BOOTSTRAP_SERVERS}
+
+networks:
+  fabrica:
+
+volumes:
+  kafka1-data:
+  kafka2-data:
+  kafka3-data:
+  pg-data:

@@ -1,0 +1,54 @@
+(saída gravada em logs/falha-consumidor-20260925-111801.log)
+
+[1;36m==== [11:18:01] ANTES: distribuição das partições entre os processadores ====[0m
+GROUP                    TOPIC           PARTITION  CURRENT-OFFSET  LOG-END-OFFSET  LAG    CONSUMER-ID
+processadores-sensores   dados-sensores  3          27048           27051           3      proc-711d8e46-6d53fc4c-8edc-4342-ac73-ab7515ade1e8
+processadores-sensores   dados-sensores  2          43451           43456           5      proc-711d8e46-6d53fc4c-8edc-4342-ac73-ab7515ade1e8
+processadores-sensores   dados-sensores  5          17531           17531           0      proc-7b14f567-93683d6b-c1dc-4d19-bdec-4456a1b44692
+processadores-sensores   dados-sensores  4          42993           42993           0      proc-7b14f567-93683d6b-c1dc-4d19-bdec-4456a1b44692
+processadores-sensores   dados-sensores  1          59126           59126           0      proc-573d9f78-25780574-dfa8-408d-8d8d-107a18c25b8d
+processadores-sensores   dados-sensores  0          17411           17411           0      proc-573d9f78-25780574-dfa8-408d-8d8d-107a18c25b8d
+
+[1;36m==== [11:18:02] DERRUBANDO fabrica-processador-1 (proc-711d8e46) com SIGKILL ====[0m
+
+[1;36m==== [11:18:02] Aguardando 20s (session.timeout=10000ms + margem) para o rebalanço... ====[0m
+
+[1;36m==== [11:18:22] DEPOIS: as partições do processador morto foram redistribuídas ====[0m
+GROUP                    TOPIC           PARTITION  CURRENT-OFFSET  LOG-END-OFFSET  LAG    CONSUMER-ID
+processadores-sensores   dados-sensores  5          17573           17573           0      proc-7b14f567-93683d6b-c1dc-4d19-bdec-4456a1b44692
+processadores-sensores   dados-sensores  4          43098           43098           0      proc-7b14f567-93683d6b-c1dc-4d19-bdec-4456a1b44692
+processadores-sensores   dados-sensores  3          27114           27114           0      proc-7b14f567-93683d6b-c1dc-4d19-bdec-4456a1b44692
+processadores-sensores   dados-sensores  1          59273           59273           0      proc-573d9f78-25780574-dfa8-408d-8d8d-107a18c25b8d
+processadores-sensores   dados-sensores  0          17453           17453           0      proc-573d9f78-25780574-dfa8-408d-8d8d-107a18c25b8d
+processadores-sensores   dados-sensores  2          43561           43561           0      proc-573d9f78-25780574-dfa8-408d-8d8d-107a18c25b8d
+
+[1;36m==== [11:18:23] Logs de REBALANÇO dos sobreviventes ====[0m
+processador-3  | 2026-09-25 11:18:13,122 [proc-7b14f567] INFO <<< REBALANÇO: REVOGADAS partições [4, 5] | restam []
+processador-3  | 2026-09-25 11:18:13,130 [proc-7b14f567] INFO >>> REBALANÇO: RECEBIDAS partições [3, 4, 5] | agora responsável por [3, 4, 5]
+processador-2  | 2026-09-25 11:18:13,122 [proc-573d9f78] INFO <<< REBALANÇO: REVOGADAS partições [0, 1] | restam []
+processador-2  | 2026-09-25 11:18:13,130 [proc-573d9f78] INFO >>> REBALANÇO: RECEBIDAS partições [0, 1, 2] | agora responsável por [0, 1, 2]
+
+[1;36m==== [11:18:23] Registro na tabela eventos_rebalanco ====[0m
+   hora   |  processador  | evento | particoes 
+----------+---------------+--------+-----------
+ 11:18:13 | proc-7b14f567 | ASSIGN | {3,4,5}
+ 11:18:13 | proc-573d9f78 | ASSIGN | {0,1,2}
+ 11:18:13 | proc-573d9f78 | REVOKE | {0,1}
+ 11:18:13 | proc-7b14f567 | REVOKE | {4,5}
+ 11:17:37 | proc-711d8e46 | ASSIGN | {2,3}
+ 11:17:37 | proc-7b14f567 | ASSIGN | {4,5}
+ 11:17:37 | proc-573d9f78 | ASSIGN | {0,1}
+ 11:17:37 | proc-573d9f78 | REVOKE | {0,1,2}
+ 11:17:37 | proc-7b14f567 | REVOKE | {3,4,5}
+(9 rows)
+
+
+[1;36m==== [11:18:24] Quem gravou leituras nos últimos 10s (o morto some) ====[0m
+  processador  | particoes | leituras 
+---------------+-----------+----------
+ proc-573d9f78 | {0,1,2}   |      140
+ proc-7b14f567 | {3,4,5}   |      100
+(2 rows)
+
+
+Para religar: docker start fabrica-processador-1   (ou: make up)

@@ -1,0 +1,99 @@
+(saída gravada em logs/elasticidade-20260925-111834.log)
+
+[1;36m==== [11:18:34] Estado inicial: 3 processadores, 3 sensores ====[0m
+GROUP                    TOPIC           PARTITION  CURRENT-OFFSET  LOG-END-OFFSET  LAG    CONSUMER-ID
+processadores-sensores   dados-sensores  5          17597           17597           0      proc-7b14f567-93683d6b-c1dc-4d19-bdec-4456a1b44692
+processadores-sensores   dados-sensores  4          43158           43158           0      proc-7b14f567-93683d6b-c1dc-4d19-bdec-4456a1b44692
+processadores-sensores   dados-sensores  1          59357           59357           0      proc-573d9f78-25780574-dfa8-408d-8d8d-107a18c25b8d
+processadores-sensores   dados-sensores  0          17477           17477           0      proc-573d9f78-25780574-dfa8-408d-8d8d-107a18c25b8d
+processadores-sensores   dados-sensores  3          27150           27150           0      proc-711d8e46-b12e6d6f-6cab-4e6e-9818-b1f423c791e1
+processadores-sensores   dados-sensores  2          43621           43621           0      proc-711d8e46-b12e6d6f-6cab-4e6e-9818-b1f423c791e1
+
+[1;36m==== [11:18:35] ETAPA 1: carga sobe para 6 sensores, 1 processador lento (40ms/msg) ====[0m
+lag total do grupo: 752
+lag total do grupo: 1160
+lag total do grupo: 1668
+GROUP                    TOPIC           PARTITION  CURRENT-OFFSET  LOG-END-OFFSET  LAG    CONSUMER-ID
+processadores-sensores   dados-sensores  5          17701           17809           108    proc-03d2b860-79a1a373-3e81-43e8-85d2-d141067c3d90
+processadores-sensores   dados-sensores  4          43437           43722           285    proc-03d2b860-79a1a373-3e81-43e8-85d2-d141067c3d90
+processadores-sensores   dados-sensores  1          59834           60337           503    proc-03d2b860-79a1a373-3e81-43e8-85d2-d141067c3d90
+processadores-sensores   dados-sensores  0          17581           17689           108    proc-03d2b860-79a1a373-3e81-43e8-85d2-d141067c3d90
+processadores-sensores   dados-sensores  3          27389           27638           249    proc-03d2b860-79a1a373-3e81-43e8-85d2-d141067c3d90
+processadores-sensores   dados-sensores  2          44062           44525           463    proc-03d2b860-79a1a373-3e81-43e8-85d2-d141067c3d90
+
+[1;36m==== [11:19:47] ETAPA 2: escalando processadores para 3 ====[0m
+lag total do grupo: 1492
+lag total do grupo: 1070
+lag total do grupo: 821
+GROUP                    TOPIC           PARTITION  CURRENT-OFFSET  LOG-END-OFFSET  LAG    CONSUMER-ID
+processadores-sensores   dados-sensores  5          18004           18010           6      proc-d45f3072-ec1e49a7-9125-4124-beb3-aa4942ce0ac1
+processadores-sensores   dados-sensores  4          44242           44258           16     proc-d45f3072-ec1e49a7-9125-4124-beb3-aa4942ce0ac1
+processadores-sensores   dados-sensores  3          27907           28107           200    proc-ca80f50f-b2ad972f-162e-4188-b816-9796813f778d
+processadores-sensores   dados-sensores  2          45025           45396           371    proc-ca80f50f-b2ad972f-162e-4188-b816-9796813f778d
+processadores-sensores   dados-sensores  1          61048           61275           227    proc-03d2b860-79a1a373-3e81-43e8-85d2-d141067c3d90
+processadores-sensores   dados-sensores  0          17841           17890           49     proc-03d2b860-79a1a373-3e81-43e8-85d2-d141067c3d90
+
+[1;36m==== [11:20:54] ETAPA 2: escalando processadores para 6 ====[0m
+lag total do grupo: 328
+lag total do grupo: 68
+lag total do grupo: 80
+GROUP                    TOPIC           PARTITION  CURRENT-OFFSET  LOG-END-OFFSET  LAG    CONSUMER-ID
+processadores-sensores   dados-sensores  1          62185           62213           28     proc-5084a4f6-e8aad91f-0482-4ec6-be9f-8cd553d881bb
+processadores-sensores   dados-sensores  2          46241           46267           26     proc-5774d724-bc65df1c-66a4-4bc1-8aaf-798986f35254
+processadores-sensores   dados-sensores  5          18209           18211           2      proc-d45f3072-ec1e49a7-9125-4124-beb3-aa4942ce0ac1
+processadores-sensores   dados-sensores  4          44781           44794           13     proc-ca80f50f-b2ad972f-162e-4188-b816-9796813f778d
+processadores-sensores   dados-sensores  3          28573           28576           3      proc-67acaa81-fc2958ab-403d-4cdc-8dcc-748ec9b28c01
+processadores-sensores   dados-sensores  0          18089           18091           2      proc-03d2b860-79a1a373-3e81-43e8-85d2-d141067c3d90
+
+[1;36m==== [11:22:01] ETAPA 3: 8 processadores para 6 partições (2 ficarão ociosos) ====[0m
+MEMBRO                                        CLIENT-ID    #PARTITIONS
+proc-5084a4f6-e8aad91f-0482-4ec6-be9f-8cd553d881bb proc-5084a4f6 1
+proc-5774d724-bc65df1c-66a4-4bc1-8aaf-798986f35254 proc-5774d724 1
+proc-d45f3072-ec1e49a7-9125-4124-beb3-aa4942ce0ac1 proc-d45f3072 0
+proc-ca80f50f-b2ad972f-162e-4188-b816-9796813f778d proc-ca80f50f 1
+proc-67acaa81-fc2958ab-403d-4cdc-8dcc-748ec9b28c01 proc-67acaa81 1
+proc-e1c2ca52-4f144f36-c7db-4157-92a5-e4fedb19e6db proc-e1c2ca52 0
+proc-61125673-f7d3850a-809e-406c-abcd-0460f73949de proc-61125673 1
+proc-03d2b860-79a1a373-3e81-43e8-85d2-d141067c3d90 proc-03d2b860 1
+(membros com #PARTITIONS = 0 estão no grupo mas ociosos: não há partição sobrando)
+
+[1;36m==== [11:22:26] Rebalanços registrados durante a demonstração ====[0m
+   hora   |  processador  | evento | particoes 
+----------+---------------+--------+-----------
+ 11:22:07 | proc-5084a4f6 | ASSIGN | {1}
+ 11:22:07 | proc-d45f3072 | ASSIGN | {}
+ 11:22:07 | proc-e1c2ca52 | ASSIGN | {}
+ 11:22:07 | proc-61125673 | ASSIGN | {3}
+ 11:22:07 | proc-03d2b860 | ASSIGN | {0}
+ 11:22:07 | proc-ca80f50f | ASSIGN | {5}
+ 11:22:07 | proc-67acaa81 | ASSIGN | {4}
+ 11:22:07 | proc-5774d724 | ASSIGN | {2}
+ 11:22:07 | proc-5084a4f6 | REVOKE | {1}
+ 11:22:07 | proc-67acaa81 | REVOKE | {3}
+ 11:22:07 | proc-5774d724 | REVOKE | {2}
+ 11:22:06 | proc-d45f3072 | REVOKE | {5}
+ 11:22:06 | proc-03d2b860 | REVOKE | {0}
+ 11:22:06 | proc-ca80f50f | REVOKE | {4}
+ 11:21:03 | proc-67acaa81 | ASSIGN | {3}
+ 11:21:03 | proc-03d2b860 | ASSIGN | {0}
+ 11:21:03 | proc-ca80f50f | ASSIGN | {4}
+ 11:21:03 | proc-5084a4f6 | ASSIGN | {1}
+ 11:21:03 | proc-5774d724 | ASSIGN | {2}
+ 11:21:03 | proc-d45f3072 | ASSIGN | {5}
+ 11:21:03 | proc-ca80f50f | REVOKE | {2,3}
+ 11:21:00 | proc-d45f3072 | REVOKE | {4,5}
+ 11:20:59 | proc-03d2b860 | REVOKE | {0,1}
+ 11:19:54 | proc-d45f3072 | ASSIGN | {4,5}
+ 11:19:54 | proc-ca80f50f | ASSIGN | {2,3}
+(25 rows)
+
+
+[1;36m==== [11:22:26] ETAPA 4: voltando ao tamanho original (processamento normal) ====[0m
+GROUP                    TOPIC           PARTITION  CURRENT-OFFSET  LOG-END-OFFSET  LAG    CONSUMER-ID
+processadores-sensores   dados-sensores  3          28865           28865           0      proc-34c1a467-ed5ab270-9f85-4b69-a90c-021c5085c85f
+processadores-sensores   dados-sensores  2          46790           46790           0      proc-34c1a467-ed5ab270-9f85-4b69-a90c-021c5085c85f
+processadores-sensores   dados-sensores  1          62815           62815           0      proc-117780b9-8feb64d0-36e4-46c9-a161-61e552fc7923
+processadores-sensores   dados-sensores  0          18232           18232           0      proc-117780b9-8feb64d0-36e4-46c9-a161-61e552fc7923
+processadores-sensores   dados-sensores  5          18352           18352           0      proc-e6c30a18-7fe94e8a-84b4-429d-a542-daf653b6698b
+processadores-sensores   dados-sensores  4          45162           45162           0      proc-e6c30a18-7fe94e8a-84b4-429d-a542-daf653b6698b
+lag total do grupo: 0
